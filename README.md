@@ -2,6 +2,11 @@
 
 This repository contains the official PyTorch implementation of **"Automatic Piano Transcription with Hierarchical Frequency-Time Transformer"** presented in ISMIR2023 ([arXiv 2307.04305](https://arxiv.org/abs/2307.04305)).
 
+## Note (by fkunn1326)
+- checkpointは`checkpoint\MAESTRO-V3\...`のように配置
+- input wavは`input\test.wav`に配置
+- `main.py`を実行したら`output\test.midi`ができているはず
+
 ## Development Environment
 - OS
   + Ubuntu 18.04
