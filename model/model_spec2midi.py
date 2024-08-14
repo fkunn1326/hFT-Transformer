@@ -128,7 +128,10 @@ class Decoder_SPEC2MIDI(nn.Module):
 
         self.fc_onset_freq = nn.Linear(hid_dim, 1)
         self.fc_offset_freq = nn.Linear(hid_dim, 1)
+        self.fc_onpedal_freq = nn.Linear(hid_dim, 1)
+        self.fc_offpedal_freq = nn.Linear(hid_dim, 1)
         self.fc_mpe_freq = nn.Linear(hid_dim, 1)
+        self.fc_mpe_pedal_freq = nn.Linear(hid_dim, 1)
         self.fc_velocity_freq = nn.Linear(hid_dim, self.n_velocity)
 
         # SAtime
@@ -139,7 +142,10 @@ class Decoder_SPEC2MIDI(nn.Module):
 
         self.fc_onset_time = nn.Linear(hid_dim, 1)
         self.fc_offset_time = nn.Linear(hid_dim, 1)
+        self.fc_onpedal_time = nn.Linear(hid_dim, 1)
+        self.fc_offpedal_time = nn.Linear(hid_dim, 1)
         self.fc_mpe_time = nn.Linear(hid_dim, 1)
+        self.fc_mpe_pedal_time = nn.Linear(hid_dim, 1)
         self.fc_velocity_time = nn.Linear(hid_dim, self.n_velocity)
 
     def forward(self, enc_spec):
@@ -171,7 +177,10 @@ class Decoder_SPEC2MIDI(nn.Module):
         ## output(freq)
         output_onset_freq = self.sigmoid(self.fc_onset_freq(midi_freq).reshape([batch_size, self.n_frame, self.n_note]))
         output_offset_freq = self.sigmoid(self.fc_offset_freq(midi_freq).reshape([batch_size, self.n_frame, self.n_note]))
+        output_onpedal_freq = self.sigmoid(self.fc_onpedal_freq(midi_freq).reshape([batch_size, self.n_frame, self.n_note]))
+        output_offpedal_freq = self.sigmoid(self.fc_offpedal_freq(midi_freq).reshape([batch_size, self.n_frame, self.n_note]))
         output_mpe_freq = self.sigmoid(self.fc_mpe_freq(midi_freq).reshape([batch_size, self.n_frame, self.n_note]))
+        output_mpe_pedal_freq = self.sigmoid(self.fc_mpe_pedal_freq(midi_freq).reshape([batch_size, self.n_frame, self.n_note]))
         output_velocity_freq = self.fc_velocity_freq(midi_freq).reshape([batch_size, self.n_frame, self.n_note, self.n_velocity])
         #output_onset_freq = [batch_size, n_frame, n_note] (8, 128, 88)
         #output_offset_freq = [batch_size, n_frame, n_note] (8, 128, 88)
@@ -202,7 +211,10 @@ class Decoder_SPEC2MIDI(nn.Module):
         ## output(time)
         output_onset_time = self.sigmoid(self.fc_onset_time(midi_time).reshape([batch_size, self.n_note, self.n_frame]).permute(0, 2, 1).contiguous())
         output_offset_time = self.sigmoid(self.fc_offset_time(midi_time).reshape([batch_size, self.n_note, self.n_frame]).permute(0, 2, 1).contiguous())
+        output_onpedal_time = self.sigmoid(self.fc_onpedal_time(midi_time).reshape([batch_size, self.n_note, self.n_frame]).permute(0, 2, 1).contiguous())
+        output_offpedal_time = self.sigmoid(self.fc_offpedal_time(midi_time).reshape([batch_size, self.n_note, self.n_frame]).permute(0, 2, 1).contiguous())
         output_mpe_time = self.sigmoid(self.fc_mpe_time(midi_time).reshape([batch_size, self.n_note, self.n_frame]).permute(0, 2, 1).contiguous())
+        output_mpe_pedal_time = self.sigmoid(self.fc_mpe_pedal_time(midi_time).reshape([batch_size, self.n_note, self.n_frame]).permute(0, 2, 1).contiguous())
         output_velocity_time = self.fc_velocity_time(midi_time).reshape([batch_size, self.n_note, self.n_frame, self.n_velocity]).permute(0, 2, 1, 3).contiguous()
         #output_onset_time = [batch_size, n_frame, n_note] (8, 128, 88)
         #output_offset_time = [batch_size, n_frame, n_note] (8, 128, 88)
@@ -213,7 +225,7 @@ class Decoder_SPEC2MIDI(nn.Module):
         #print('Decoder_SPEC2MIDI(6) output_mpe_time: '+str(output_mpe_time.shape))
         #print('Decoder_SPEC2MIDI(6) output_velocity_time: '+str(output_velocity_time.shape))
 
-        return output_onset_freq, output_offset_freq, output_mpe_freq, output_velocity_freq, attention_freq, output_onset_time, output_offset_time, output_mpe_time, output_velocity_time
+        return output_onset_freq, output_offset_freq, output_onpedal_freq, output_offpedal_freq, output_mpe_freq, output_mpe_pedal_freq, output_velocity_freq, attention_freq, output_onset_time, output_offset_time, output_onpedal_time, output_offpedal_time, output_mpe_time, output_mpe_pedal_time, output_velocity_time
 
 
 ##

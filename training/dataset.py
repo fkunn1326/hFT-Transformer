@@ -4,7 +4,7 @@ import torch
 import pickle
 
 class MyDataset(torch.utils.data.Dataset):
-    def __init__(self, f_feature, f_label_onset, f_label_offset, f_label_mpe, f_label_velocity, f_idx, config, n_slice):
+    def __init__(self, f_feature, f_label_onset, f_label_offset, f_label_onpedal, f_label_offpedal, f_label_mpe, f_label_mpe_pedal, f_label_velocity, f_idx, config, n_slice):
         super().__init__()
 
         with open(f_feature, 'rb') as f:
@@ -14,8 +14,14 @@ class MyDataset(torch.utils.data.Dataset):
             label_onset = pickle.load(f)
         with open(f_label_offset, 'rb') as f:
             label_offset = pickle.load(f)
+        with open(f_label_onpedal, 'rb') as f:
+            label_onpedal = pickle.load(f)
+        with open(f_label_offpedal, 'rb') as f:
+            label_offpedal = pickle.load(f)
         with open(f_label_mpe, 'rb') as f:
             label_mpe = pickle.load(f)
+        with open(f_label_mpe_pedal, 'rb') as f:
+            label_mpe_pedal = pickle.load(f)
         if f_label_velocity is not None:
             self.flag_velocity = True
             with open(f_label_velocity, 'rb') as f:
@@ -29,7 +35,10 @@ class MyDataset(torch.utils.data.Dataset):
         self.feature = torch.from_numpy(feature)
         self.label_onset = torch.from_numpy(label_onset)
         self.label_offset = torch.from_numpy(label_offset)
+        self.label_onpedal = torch.from_numpy(label_onpedal)
+        self.label_offpedal = torch.from_numpy(label_offpedal)
         self.label_mpe = torch.from_numpy(label_mpe)
+        self.label_mpe_pedal = torch.from_numpy(label_mpe_pedal)
         if self.flag_velocity:
             self.label_velocity = torch.from_numpy(label_velocity)
         if n_slice > 1:
@@ -61,14 +70,24 @@ class MyDataset(torch.utils.data.Dataset):
         # label_offset: [num_frame, n_note]
         label_offset = self.label_offset[idx_label_s:idx_label_e]
 
+        # label_onpedal: [num_frame, n_note]
+        label_onpedal = self.label_onpedal[idx_label_s:idx_label_e]
+
+        # label_offpedal: [num_frame, n_note]
+        label_offpedal = self.label_offpedal[idx_label_s:idx_label_e]
+
         # label_mpe: [num_frame, n_note]
         # bool -> float
         label_mpe = self.label_mpe[idx_label_s:idx_label_e].float()
+
+        # label_mpe_pedal: [num_frame, n_note]
+        # bool -> float
+        label_mpe_pedal = self.label_mpe_pedal[idx_label_s:idx_label_e].float()
 
         # label_velocity: [num_frame, n_note]
         # int8 -> long
         if self.flag_velocity:
             label_velocity = self.label_velocity[idx_label_s:idx_label_e].long()
-            return spec, label_onset, label_offset, label_mpe, label_velocity
+            return spec, label_onset, label_offset, label_onpedal, label_offpedal, label_mpe, label_mpe_pedal, label_velocity
         else:
-            return spec, label_onset, label_offset, label_mpe
+            return spec, label_onset, label_offset, label_onpedal, label_offpedal, label_mpe, label_mpe_pedal

@@ -38,10 +38,10 @@ python3 $CURRENT_DIR/corpus/conv_midi2note.py -d_list $CURRENT_DIR/corpus/MAESTR
 mkdir -p $CURRENT_DIR/corpus/MAESTRO-V3/label
 python3 $CURRENT_DIR/corpus/conv_note2label.py -d_list $CURRENT_DIR/corpus/MAESTRO-V3/list -d_note $CURRENT_DIR/corpus/MAESTRO-V3/note -d_label $CURRENT_DIR/corpus/MAESTRO-V3/label -config $CURRENT_DIR/corpus/config.json
 
-# 7. convert txt to reference for evaluation
-mkdir -p $CURRENT_DIR/corpus/MAESTRO-V3/reference
-python3 $CURRENT_DIR/corpus/conv_note2ref.py -f_list $CURRENT_DIR/corpus/MAESTRO-V3/list/valid.list -d_note $CURRENT_DIR/corpus/MAESTRO-V3/note -d_ref $CURRENT_DIR/corpus/MAESTRO-V3/reference
-python3 $CURRENT_DIR/corpus/conv_note2ref.py -f_list $CURRENT_DIR/corpus/MAESTRO-V3/list/test.list -d_note $CURRENT_DIR/corpus/MAESTRO-V3/note -d_ref $CURRENT_DIR/corpus/MAESTRO-V3/reference
+# 7. convert txt to reference for evaluation (not necessary?)
+# mkdir -p $CURRENT_DIR/corpus/MAESTRO-V3/reference
+# python3 $CURRENT_DIR/corpus/conv_note2ref.py -f_list $CURRENT_DIR/corpus/MAESTRO-V3/list/valid.list -d_note $CURRENT_DIR/corpus/MAESTRO-V3/note -d_ref $CURRENT_DIR/corpus/MAESTRO-V3/reference
+# python3 $CURRENT_DIR/corpus/conv_note2ref.py -f_list $CURRENT_DIR/corpus/MAESTRO-V3/list/test.list -d_note $CURRENT_DIR/corpus/MAESTRO-V3/note -d_ref $CURRENT_DIR/corpus/MAESTRO-V3/reference
 
 # 8. make dataset
 mkdir -p $CURRENT_DIR/corpus/MAESTRO-V3/dataset

@@ -56,6 +56,8 @@ def midi2note(config, f_midi, verbose_flag = False):
     # (3) obtain MIDI message
     a_note = []
     a_onset = []
+    a_offset = []
+    a_onpedal = []
     a_velocity = []
     a_reonset = []
     a_push = []
@@ -66,6 +68,8 @@ def midi2note(config, f_midi, verbose_flag = False):
         a_reonset.append(False)
         a_push.append(False)
         a_sustain.append(False)
+        a_offset.append(-1)
+        a_onpedal.append(-1)
 
     ticks = 0
     sustain_flag = False
@@ -85,12 +89,16 @@ def midi2note(config, f_midi, verbose_flag = False):
                         if verbose_flag is True:
                             print('## output sustain pedal off : '+str(i))
                             print({'onset': a_onset[i],
-                                   'offset': time_in_sec,
+                                   'offset': a_offset[i],
+                                   'onpedal': a_onpedal[i],
+                                   'offpedal': time_in_sec,
                                    'pitch': i,
                                    'velocity': a_velocity[i],
                                    'reonset': a_reonset[i]})
                         a_note.append({'onset': a_onset[i],
-                                       'offset': time_in_sec,
+                                       'offset': a_offset[i],
+                                       'onpedal': a_onpedal[i],
+                                       'offpedal': time_in_sec,
                                        'pitch': i,
                                        'velocity': a_velocity[i],
                                        'reonset': a_reonset[i]})
@@ -108,6 +116,7 @@ def midi2note(config, f_midi, verbose_flag = False):
                 for i in range(config['midi']['note_min'], config['midi']['note_max']+1):
                     if a_push[i] is True:
                         a_sustain[i] = True
+                        a_onpedal[i] = time_in_sec
                         if verbose_flag is True:
                             print('sustain('+str(i)+') ON')
         elif ('note_on' in str(message)) and (int(message.velocity) > 0):
@@ -121,12 +130,16 @@ def midi2note(config, f_midi, verbose_flag = False):
                     print('## output reonset : '+str(note))
                     print({'onset': a_onset[note],
                            'offset': time_in_sec,
+                           'onpedal': a_onpedal[note],
+                           'offpedal': time_in_sec,
                            'pitch': note,
                            'velocity': a_velocity[note],
                            'reonset': a_reonset[note]})
                 # reonset
                 a_note.append({'onset': a_onset[note],
                                'offset': time_in_sec,
+                               'onpedal': a_onpedal[note],
+                               'offpedal': time_in_sec,
                                'pitch': note,
                                'velocity': a_velocity[note],
                                'reonset': a_reonset[note]})
@@ -134,6 +147,7 @@ def midi2note(config, f_midi, verbose_flag = False):
             else:
                 a_reonset[note] = False
             a_onset[note] = time_in_sec
+            a_onpedal[note] = time_in_sec
             a_velocity[note] = velocity
             a_push[note] = True
             if sustain_flag is True:
@@ -153,22 +167,27 @@ def midi2note(config, f_midi, verbose_flag = False):
                     print('## output offset : '+str(note))
                     print({'onset': a_onset[note],
                            'offset': time_in_sec,
+                           'sustain_offset': time_in_sec,
                            'pitch': note,
                            'velocity': a_velocity[note],
                            'reonset': a_reonset[note]})
                     print({'onset': a_onset[note],
                            'offset': time_in_sec,
+                           'sustain_offset': time_in_sec,
                            'pitch': note,
                            'velocity': a_velocity[note],
                            'reonset': a_reonset[note]})
                 a_note.append({'onset': a_onset[note],
                                'offset': time_in_sec,
+                               'onpedal': a_onpedal[note],
+                               'offpedal': time_in_sec,
                                'pitch': note,
                                'velocity': a_velocity[note],
                                'reonset': a_reonset[note]})
                 a_onset[note] = -1
                 a_velocity[note] = -1
                 a_reonset[note] = False
+            a_offset[note] = time_in_sec
             a_push[note] = False
 
     for i in range(config['midi']['note_min'], config['midi']['note_max']+1):
@@ -176,12 +195,16 @@ def midi2note(config, f_midi, verbose_flag = False):
             if verbose_flag is True:
                 print('## output final : '+str(i))
                 print({'onset': a_onset[i],
-                       'offset': time_in_sec,
+                       'offset': a_offset[i],
+                       'onpedal': a_onpedal[i],
+                       'offpedal': time_in_sec,
                        'pitch': i,
                        'velocity': a_velocity[i],
                        'reonset': a_reonset[i]})
             a_note.append({'onset': a_onset[i],
-                           'offset': time_in_sec,
+                           'offset': a_offset[i],
+                           'onpedal': a_onpedal[i],
+                           'offpedal': time_in_sec,
                            'pitch': i,
                            'velocity': a_velocity[i],
                            'reonset': a_reonset[i]})
@@ -236,10 +259,12 @@ if __name__ == '__main__':
             with open(args.d_note.rstrip('/')+'/'+fname+'.json', 'w', encoding='utf-8') as f:
                 json.dump(a_note, f, ensure_ascii=False, indent=4, sort_keys=False)
             with open(args.d_note.rstrip('/')+'/'+fname+'.txt', 'w', encoding='utf-8') as f:
-                f.write('OnsetTime\tOffsetTime\tVelocity\tMidiPitch\n')
+                f.write('OnsetTime\tOffsetTime\tOnPedalTime\tOffPedalTime\tVelocity\tMidiPitch\n')
                 for note in a_note:
                     f.write(str(note['onset'])+'\t')
                     f.write(str(note['offset'])+'\t')
+                    f.write(str(note['onpedal'])+'\t')
+                    f.write(str(note['offpedal'])+'\t')
                     f.write(str(note['velocity'])+'\t')
                     f.write(str(note['pitch'])+'\n')
 

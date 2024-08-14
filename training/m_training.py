@@ -145,12 +145,18 @@ if __name__ == '__main__':
 
     criterion_onset_A = nn.BCELoss()
     criterion_offset_A = nn.BCELoss()
+    criterion_onpedal_A = nn.BCELoss()
+    criterion_offpedal_A = nn.BCELoss()
     criterion_mpe_A = nn.BCELoss()
+    criterion_mpe_pedal_A = nn.BCELoss()
     criterion_velocity_A = nn.CrossEntropyLoss()
 
     criterion_onset_B = nn.BCELoss()
     criterion_offset_B = nn.BCELoss()
+    criterion_onpedal_B = nn.BCELoss()
+    criterion_offpedal_B = nn.BCELoss()
     criterion_mpe_B = nn.BCELoss()
+    criterion_mpe_pedal_B = nn.BCELoss
     criterion_velocity_B = nn.CrossEntropyLoss()
 
     d_out = args.d_out.rstrip('/')
@@ -228,7 +234,10 @@ if __name__ == '__main__':
         dataset_train = dataset.MyDataset(d_dataset+'/feature/train.pkl',
                                           d_dataset+'/label_onset/train.pkl',
                                           d_dataset+'/label_offset/train.pkl',
+                                          d_dataset+'/label_onpedal/train.pkl',
+                                          d_dataset+'/label_offpedal/train.pkl',
                                           d_dataset+'/label_mpe/train.pkl',
+                                          d_dataset+'/label_mpe_pedal/train.pkl',
                                           d_dataset+'/label_velocity/train.pkl',
                                           d_dataset+'/idx/train.pkl',
                                           config,
@@ -239,7 +248,10 @@ if __name__ == '__main__':
         dataset_valid = dataset.MyDataset(d_dataset+'/feature/valid.pkl',
                                           d_dataset+'/label_onset/valid.pkl',
                                           d_dataset+'/label_offset/valid.pkl',
+                                          d_dataset+'/label_onpedal/valid.pkl',
+                                          d_dataset+'/label_offpedal/valid.pkl',
                                           d_dataset+'/label_mpe/valid.pkl',
+                                          d_dataset+'/label_mpe_pedal/valid.pkl',
                                           d_dataset+'/label_velocity/valid.pkl',
                                           d_dataset+'/idx/valid.pkl',
                                           config,
@@ -250,7 +262,10 @@ if __name__ == '__main__':
         dataset_test = dataset.MyDataset(d_dataset+'/feature/test.pkl',
                                          d_dataset+'/label_onset/test.pkl',
                                          d_dataset+'/label_offset/test.pkl',
+                                         d_dataset+'/label_onpedal/test.pkl',
+                                         d_dataset+'/label_offpedal/test.pkl',
                                          d_dataset+'/label_mpe/test.pkl',
+                                         d_dataset+'/label_mpe_pedal/test.pkl',
                                          d_dataset+'/label_velocity/test.pkl',
                                          d_dataset+'/idx/test.pkl',
                                          config,
@@ -311,7 +326,10 @@ if __name__ == '__main__':
                 dataset_train = dataset.MyDataset(d_dataset+'/feature/train_'+str(div).zfill(3)+'.pkl',
                                                   d_dataset+'/label_onset/train_'+str(div).zfill(3)+'.pkl',
                                                   d_dataset+'/label_offset/train_'+str(div).zfill(3)+'.pkl',
+                                                  d_dataset+'/label_onpedal/train_'+str(div).zfill(3)+'.pkl',
+                                                  d_dataset+'/label_offpedal/train_'+str(div).zfill(3)+'.pkl',
                                                   d_dataset+'/label_mpe/train_'+str(div).zfill(3)+'.pkl',
+                                                  d_dataset+'/label_mpe_pedal/train_'+str(div).zfill(3)+'.pkl',
                                                   d_dataset+'/label_velocity/train_'+str(div).zfill(3)+'.pkl',
                                                   d_dataset+'/idx/train_'+str(div).zfill(3)+'.pkl',
                                                   config,
@@ -320,8 +338,8 @@ if __name__ == '__main__':
                 print('## nstep train: '+str(len(dataloader_train)))
 
             epoch_loss_train = train.train(model, dataloader_train, optimizer,
-                                           criterion_onset_A, criterion_offset_A, criterion_mpe_A, criterion_velocity_A,
-                                           criterion_onset_B, criterion_offset_B, criterion_mpe_B, criterion_velocity_B,
+                                           criterion_onset_A, criterion_offset_A, criterion_onpedal_A, criterion_offpedal_A, criterion_mpe_A, criterion_mpe_pedal_A, criterion_velocity_A,
+                                           criterion_onset_B, criterion_offset_B, criterion_onpedal_B, criterion_offpedal_B, criterion_mpe_B, criterion_mpe_pedal_B, criterion_velocity_B,
                                            args.weight_A, args.weight_B,
                                            device, args.v)
 
@@ -337,6 +355,7 @@ if __name__ == '__main__':
                     dataset_valid = dataset.MyDataset(d_dataset+'/feature/valid_'+str(div_valid).zfill(3)+'.pkl',
                                                       d_dataset+'/label_onset/valid_'+str(div_valid).zfill(3)+'.pkl',
                                                       d_dataset+'/label_offset/valid_'+str(div_valid).zfill(3)+'.pkl',
+                                                      d_dataset+'/label_sustain_offset/valid_'+str(div_valid).zfill(3)+'.pkl',
                                                       d_dataset+'/label_mpe/valid_'+str(div_valid).zfill(3)+'.pkl',
                                                       d_dataset+'/label_velocity/valid_'+str(div_valid).zfill(3)+'.pkl',
                                                       d_dataset+'/idx/valid_'+str(div_valid).zfill(3)+'.pkl',
@@ -345,8 +364,8 @@ if __name__ == '__main__':
                     dataloader_valid = torch.utils.data.DataLoader(dataset_valid, batch_size=args.batch, shuffle=False)
                     print('## nstep valid: '+str(len(dataloader_valid)))
                     retval = train.valid(model, dataloader_valid,
-                                         criterion_onset_A, criterion_offset_A, criterion_mpe_A, criterion_velocity_A,
-                                         criterion_onset_B, criterion_offset_B, criterion_mpe_B, criterion_velocity_B,
+                                         criterion_onset_A, criterion_offset_A, criterion_onpedal_A, criterion_offpedal_A, criterion_mpe_A, criterion_mpe_pedal_A, criterion_velocity_A,
+                                         criterion_onset_B, criterion_offset_B, criterion_onpedal_B, criterion_offpedal_B, criterion_mpe_B, criterion_mpe_pedal_B, criterion_velocity_B,
                                          args.weight_A, args.weight_B,
                                          device)
                     epoch_loss_valid += retval[0]
@@ -354,8 +373,8 @@ if __name__ == '__main__':
                     del dataset_valid, dataloader_valid
             else:
                 epoch_loss_valid, num_data_valid = train.valid(model, dataloader_valid,
-                                                               criterion_onset_A, criterion_offset_A, criterion_mpe_A, criterion_velocity_A,
-                                                               criterion_onset_B, criterion_offset_B, criterion_mpe_B, criterion_velocity_B,
+                                                               criterion_onset_A, criterion_offset_A, criterion_onpedal_A, criterion_offpedal_A, criterion_mpe_A, criterion_mpe_pedal_A, criterion_velocity_A,
+                                                               criterion_onset_B, criterion_offset_B, criterion_onpedal_B, criterion_offpedal_B, criterion_mpe_B, criterion_mpe_pedal_B, criterion_velocity_B,
                                                                args.weight_A, args.weight_B,
                                                                device)
             epoch_loss_valid /= num_data_valid
@@ -370,6 +389,7 @@ if __name__ == '__main__':
                         dataset_test = dataset.MyDataset(d_dataset+'/feature/test_'+str(div_test).zfill(3)+'.pkl',
                                                          d_dataset+'/label_onset/test_'+str(div_test).zfill(3)+'.pkl',
                                                          d_dataset+'/label_offset/test_'+str(div_test).zfill(3)+'.pkl',
+                                                         d_dataset+'/label_sustain_offset/test_'+str(div_test).zfill(3)+'.pkl',
                                                          d_dataset+'/label_mpe/test_'+str(div_test).zfill(3)+'.pkl',
                                                          d_dataset+'/label_velocity/test_'+str(div_test).zfill(3)+'.pkl',
                                                          d_dataset+'/idx/test_'+str(div_test).zfill(3)+'.pkl',
@@ -387,8 +407,8 @@ if __name__ == '__main__':
                         del dataset_test, dataloader_test
                 else:
                     epoch_loss_test, num_data_test = train.valid(model, dataloader_test,
-                                                                 criterion_onset_A, criterion_offset_A, criterion_mpe_A, criterion_velocity_A,
-                                                                 criterion_onset_B, criterion_offset_B, criterion_mpe_B, criterion_velocity_B,
+                                                                 criterion_onset_A, criterion_offset_A, criterion_onpedal_A, criterion_offpedal_A, criterion_mpe_A, criterion_mpe_pedal_A, criterion_velocity_A,
+                                                                 criterion_onset_B, criterion_offset_B, criterion_onpedal_B, criterion_offpedal_B, criterion_mpe_B, criterion_mpe_pedal_B, criterion_velocity_B,
                                                                  args.weight_A, args.weight_B,
                                                                  device)
                 epoch_loss_test /= num_data_test
