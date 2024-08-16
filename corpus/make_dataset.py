@@ -237,7 +237,7 @@ def make_dataset(filelist, attribute, d_feature, d_label, d_dataset, config, n_d
     print('** label(onpedal) **')
     for div in range(n_div):
         print('div: '+str(div)+'/'+str(n_div))
-        a_dataset_label_onpedal = np.zeros([a_total_num_frame[div], config['midi']['num_note']], dtype=np.bool_)
+        a_dataset_label_onpedal = np.zeros([a_total_num_frame[div], config['midi']['num_note']], dtype=np.float32)
 
         loc_d = config['input']['margin_b']
         for i in range(len(a_fname[div])):
@@ -264,7 +264,7 @@ def make_dataset(filelist, attribute, d_feature, d_label, d_dataset, config, n_d
     print('** label(offpedal) **')
     for div in range(n_div):
         print('div: '+str(div)+'/'+str(n_div))
-        a_dataset_label_offpedal = np.zeros([a_total_num_frame[div], config['midi']['num_note']], dtype=np.bool_)
+        a_dataset_label_offpedal = np.zeros([a_total_num_frame[div], config['midi']['num_note']], dtype=np.float32)
 
         loc_d = config['input']['margin_b']
         for i in range(len(a_fname[div])):
@@ -288,32 +288,32 @@ def make_dataset(filelist, attribute, d_feature, d_label, d_dataset, config, n_d
         fl_offpedal.close()
         del a_dataset_label_offpedal
 
-    print('** label(velocity) **')
-    for div in range(n_div):
-        print('div: '+str(div)+'/'+str(n_div))
-        a_dataset_label_velocity = np.zeros([a_total_num_frame[div], config['midi']['num_note']], dtype=np.int8)
+    # print('** label(velocity) **')
+    # for div in range(n_div):
+    #     print('div: '+str(div)+'/'+str(n_div))
+    #     a_dataset_label_velocity = np.zeros([a_total_num_frame[div], config['midi']['num_note']], dtype=np.int8)
 
-        loc_d = config['input']['margin_b']
-        for i in range(len(a_fname[div])):
-            print('(label(velocity)) '+str(i)+'/'+str(len(a_fname[div]))+': '+str(a_fname[div][i]))
-            num_frame = a_num_frame[div][i]
+    #     loc_d = config['input']['margin_b']
+    #     for i in range(len(a_fname[div])):
+    #         print('(label(velocity)) '+str(i)+'/'+str(len(a_fname[div]))+': '+str(a_fname[div][i]))
+    #         num_frame = a_num_frame[div][i]
 
-            with open(d_label+'/'+a_fname[div][i]+'.pkl', 'rb') as f:
-                label_tmp = pickle.load(f)
-            num_frame_label = len(label_tmp['mpe'])
-            a_dataset_label_velocity[loc_d:loc_d+num_frame_label] = label_tmp['velocity'][:]
-            del label_tmp
+    #         with open(d_label+'/'+a_fname[div][i]+'.pkl', 'rb') as f:
+    #             label_tmp = pickle.load(f)
+    #         num_frame_label = len(label_tmp['mpe'])
+    #         a_dataset_label_velocity[loc_d:loc_d+num_frame_label] = label_tmp['velocity'][:]
+    #         del label_tmp
 
-            loc_d += num_frame + config['input']['margin_f'] + config['input']['num_frame'] - 1
+    #         loc_d += num_frame + config['input']['margin_f'] + config['input']['num_frame'] - 1
 
-        if div_flag is True:
-            fl_velocity = open(d_dataset+'/label_velocity/'+attribute+'_'+str(div).zfill(3)+'.pkl', 'wb')
-        else:
-            fl_velocity = open(d_dataset+'/label_velocity/'+attribute+'.pkl', 'wb')
+    #     if div_flag is True:
+    #         fl_velocity = open(d_dataset+'/label_velocity/'+attribute+'_'+str(div).zfill(3)+'.pkl', 'wb')
+    #     else:
+    #         fl_velocity = open(d_dataset+'/label_velocity/'+attribute+'.pkl', 'wb')
 
-        pickle.dump(a_dataset_label_velocity, fl_velocity, protocol=4)
-        fl_velocity.close()
-        del a_dataset_label_velocity
+    #     pickle.dump(a_dataset_label_velocity, fl_velocity, protocol=4)
+    #     fl_velocity.close()
+    #     del a_dataset_label_velocity
 
     return
 

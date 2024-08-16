@@ -11,7 +11,7 @@ from model import amt
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-f_config', help='config json file', default='../corpus/config.json')
-    parser.add_argument('-f_list', help='file list', default='../corpus/MAESTRO-V3/list/test.list')
+    parser.add_argument('-f_wav', help='wav file', default='../corpus/MAESTRO-V3/list/test.list')
     parser.add_argument('-d_cp', help='checkpoint directory', default='../checkpoint')
     parser.add_argument('-m', help='input model file', default='best_model.pkl')
     parser.add_argument('-mode', help='mode to transcript (combination|single)', default='combination')
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print('** AMT: inference for evaluation **')
-    print(' file list      : '+str(args.f_list))
+    print(' file           : '+str(args.f_wav))
     print(' config file    : '+str(args.f_config))
     print(' checkpoint')
     print('  directory     : '+str(args.d_cp))
@@ -54,19 +54,14 @@ if __name__ == '__main__':
         parameters = json.load(f)
 
     # list file
-    a_list = []
-    with open(args.f_list, 'r', encoding='utf-8') as f:
-        a_list_tmp = f.readlines()
-    for fname in a_list_tmp:
-        a_list.append(fname.rstrip('\n'))
-    del a_list_tmp
+    a_list = [args.f_wav]
 
     # config file
     with open(args.f_config, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
     # AMT class
-    AMT = amt.AMT(config, args.d_cp.rstrip('/')+'/'+args.m, verbose_flag = False)
+    AMT = amt.AMT(config, args.d_cp.rstrip('/')+'/'+args.m, verbose_flag=True)
 
     # inference
     out_dir_mpe = args.d_mpe.rstrip('/')
@@ -77,7 +72,7 @@ if __name__ == '__main__':
 
         # feature
         if args.calc_feature is True:
-            a_feature = AMT.wav2feature(args.d_wav.rstrip('/')+'/'+fname+'.wav')
+            a_feature = AMT.wav2feature(args.d_wav.rstrip('/')+'/'+fname)
             with open(args.d_fe.rstrip('/')+'/'+fname+'.pkl', 'wb') as f:
                 pickle.dump(a_feature, f, protocol=4)
         else:
@@ -156,6 +151,18 @@ if __name__ == '__main__':
                                               thred_mpe=args.thred_mpe,
                                               mode_velocity='ignore_zero',
                                               mode_offset='shorter')
+        
+        os.remove(out_dir_mpe+'/'+fname+'_1st.onset')
+        os.remove(out_dir_mpe+'/'+fname+'_1st.offset')
+        os.remove(out_dir_mpe+'/'+fname+'_1st.mpe')
+        os.remove(out_dir_mpe+'/'+fname+'_1st.velocity')
+
+        if args.mode == 'combination':
+            os.remove(out_dir_mpe+'/'+fname+'_2nd.onset')
+            os.remove(out_dir_mpe+'/'+fname+'_2nd.offset')
+            os.remove(out_dir_mpe+'/'+fname+'_2nd.mpe')
+            os.remove(out_dir_mpe+'/'+fname+'_2nd.velocity')
+
         with open(out_dir_note+'/'+fname+'_1st.json', 'w', encoding='utf-8') as f:
             json.dump(a_note_1st_predict, f, ensure_ascii=False, indent=4, sort_keys=False)
         if args.mode == 'combination':

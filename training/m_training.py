@@ -156,7 +156,7 @@ if __name__ == '__main__':
     criterion_onpedal_B = nn.BCELoss()
     criterion_offpedal_B = nn.BCELoss()
     criterion_mpe_B = nn.BCELoss()
-    criterion_mpe_pedal_B = nn.BCELoss
+    criterion_mpe_pedal_B = nn.BCELoss()
     criterion_velocity_B = nn.CrossEntropyLoss()
 
     d_out = args.d_out.rstrip('/')

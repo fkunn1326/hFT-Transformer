@@ -20,7 +20,8 @@ class Model_SPEC2MIDI(nn.Module):
         #enc_freq = [batch_size, n_frame, n_bin, hid_dim] (8, 128, 256, 256)
         #print('Model_SPEC2MIDI(1) enc_vector: '+str(enc_vector.shape))
 
-        output_onset_A, output_offset_A, output_mpe_A, output_velocity_A, attention, output_onset_B, output_offset_B, output_mpe_B, output_velocity_B = self.decoder_spec2midi(enc_vector)
+        output_onset_A, output_offset_A, output_onpedal_A, output_offpedal_A, output_mpe_A, output_mpe_pedal_A, output_velocity_A, attention, output_onset_B, output_offset_B, output_onpedal_B, output_offpedal_B, output_mpe_B, output_mpe_pedal_B, output_velocity_B = self.decoder_spec2midi(enc_vector)
+
         #output_onset_A = [batch_size, n_frame, n_note] (8, 128, 88)
         #output_onset_B = [batch_size, n_frame, n_note] (8, 128, 88)
         #output_velocity_A = [batch_size, n_frame, n_note, n_velocity] (8, 128, 88, 128)
@@ -32,7 +33,7 @@ class Model_SPEC2MIDI(nn.Module):
         #print('Model_SPEC2MIDI(2) output_velocity_B: '+str(output_velocity_B.shape))
         #print('Model_SPEC2MIDI(2) attention: '+str(attention.shape))
 
-        return output_onset_A, output_offset_A, output_mpe_A, output_velocity_A, attention, output_onset_B, output_offset_B, output_mpe_B, output_velocity_B
+        return output_onset_A, output_offset_A, output_onpedal_A, output_offpedal_A, output_mpe_A, output_mpe_pedal_A, output_velocity_A, attention, output_onset_B, output_offset_B, output_onpedal_B, output_offpedal_B, output_mpe_B, output_mpe_pedal_B, output_velocity_B
 
 
 ##

@@ -75,13 +75,19 @@ class AMT():
 
         a_output_onset_A = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
         a_output_offset_A = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
+        a_output_onpedal_A = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
+        a_output_offpedal_A = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
         a_output_mpe_A = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
+        a_output_mpe_pedal_A = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
         a_output_velocity_A = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.int8)
 
         if mode == 'combination':
             a_output_onset_B = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
             a_output_offset_B = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
+            a_output_onpedal_B = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
+            a_output_offpedal_B = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
             a_output_mpe_B = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
+            a_output_mpe_pedal_B = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.float32)
             a_output_velocity_B = np.zeros((a_feature.shape[0]+len_s, self.config['midi']['num_note']), dtype=np.int8)
 
         self.model.eval()
@@ -91,31 +97,37 @@ class AMT():
             with torch.no_grad():
                 if mode == 'combination':
                     if ablation_flag is True:
-                        output_onset_A, output_offset_A, output_mpe_A, output_velocity_A, output_onset_B, output_offset_B, output_mpe_B, output_velocity_B = self.model(input_spec)
+                        output_onset_A, output_offset_A, output_onpedal_A, output_offpedal_A, output_mpe_A, output_mpe_pedal_A, output_velocity_A, output_onset_B, output_offset_B, output_onpedal_B, output_offpedal_B, output_mpe_B, output_mpe_pedal_B, output_velocity_B = self.model(input_spec)
                     else:
-                        output_onset_A, output_offset_A, output_mpe_A, output_velocity_A, attention, output_onset_B, output_offset_B, output_mpe_B, output_velocity_B = self.model(input_spec)
+                        output_onset_A, output_offset_A, output_onpedal_A, output_offpedal_A, output_mpe_A, output_mpe_pedal_A, output_velocity_A, attention, output_onset_B, output_offset_B, output_onpedal_B, output_offpedal_B, output_mpe_B, output_mpe_pedal_B, output_velocity_B = self.model(input_spec)
                     # output_onset: [batch_size, n_frame, n_note]
                     # output_offset: [batch_size, n_frame, n_note]
                     # output_mpe: [batch_size, n_frame, n_note]
                     # output_velocity: [batch_size, n_frame, n_note, n_velocity]
                 else:
-                    output_onset_A, output_offset_A, output_mpe_A, output_velocity_A = self.model(input_spec)
+                    output_onset_A, output_offset_A, output_onpedal_A, output_offpedal_A, output_mpe_A, output_mpe_pedal_A, output_velocity_A = self.model(input_spec)
 
             a_output_onset_A[i:i+self.config['input']['num_frame']] = (output_onset_A.squeeze(0)).to('cpu').detach().numpy()
             a_output_offset_A[i:i+self.config['input']['num_frame']] = (output_offset_A.squeeze(0)).to('cpu').detach().numpy()
+            a_output_onpedal_A[i:i+self.config['input']['num_frame']] = (output_onpedal_A.squeeze(0)).to('cpu').detach().numpy()
+            a_output_offpedal_A[i:i+self.config['input']['num_frame']] = (output_offpedal_A.squeeze(0)).to('cpu').detach().numpy()
             a_output_mpe_A[i:i+self.config['input']['num_frame']] = (output_mpe_A.squeeze(0)).to('cpu').detach().numpy()
+            a_output_mpe_pedal_A[i:i+self.config['input']['num_frame']] = (output_mpe_pedal_A.squeeze(0)).to('cpu').detach().numpy()
             a_output_velocity_A[i:i+self.config['input']['num_frame']] = (output_velocity_A.squeeze(0).argmax(2)).to('cpu').detach().numpy()
 
             if mode == 'combination':
                 a_output_onset_B[i:i+self.config['input']['num_frame']] = (output_onset_B.squeeze(0)).to('cpu').detach().numpy()
                 a_output_offset_B[i:i+self.config['input']['num_frame']] = (output_offset_B.squeeze(0)).to('cpu').detach().numpy()
+                a_output_onpedal_B[i:i+self.config['input']['num_frame']] = (output_onpedal_B.squeeze(0)).to('cpu').detach().numpy()
+                a_output_offpedal_B[i:i+self.config['input']['num_frame']] = (output_offpedal_B.squeeze(0)).to('cpu').detach().numpy()
                 a_output_mpe_B[i:i+self.config['input']['num_frame']] = (output_mpe_B.squeeze(0)).to('cpu').detach().numpy()
+                a_output_mpe_pedal_B[i:i+self.config['input']['num_frame']] = (output_mpe_pedal_B.squeeze(0)).to('cpu').detach().numpy()
                 a_output_velocity_B[i:i+self.config['input']['num_frame']] = (output_velocity_B.squeeze(0).argmax(2)).to('cpu').detach().numpy()
 
         if mode == 'combination':
-            return a_output_onset_A, a_output_offset_A, a_output_mpe_A, a_output_velocity_A, a_output_onset_B, a_output_offset_B, a_output_mpe_B, a_output_velocity_B
+            return a_output_onset_A, a_output_offset_A, a_output_onpedal_A, a_output_offpedal_A, a_output_mpe_A, a_output_mpe_pedal_A, a_output_velocity_A, a_output_onset_B, a_output_offset_B, a_output_onpedal_B, a_output_offpedal_B, a_output_mpe_B, a_output_mpe_pedal_B, a_output_velocity_B
         else:
-            return a_output_onset_A, a_output_offset_A, a_output_mpe_A, a_output_velocity_A
+            return a_output_onset_A, a_output_offset_A, a_output_onpedal_A, a_output_offpedal_A, a_output_mpe_A, a_output_mpe_pedal_A, a_output_velocity_A
 
 
     def transcript_stride(self, a_feature, n_offset, mode='combination', ablation_flag=False):
